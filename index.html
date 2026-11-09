@@ -106,10 +106,12 @@ void loop() {
 </main>
 </div>
 <script>
-const $=s=>document.querySelector(s),$=s=>[...document.querySelectorAll(s)];\ndocument.addEventListener('click',e=>{const nav=e.target.closest('[data-page]');const goBtn=e.target.closest('[data-go]');if(nav&&typeof go==='function')go(nav.dataset.page);else if(goBtn&&typeof go==='function')go(goBtn.dataset.go)});
+const $=s=>document.querySelector(s),$=s=>[...document.querySelectorAll(s)];
+document.addEventListener('click',e=>{const nav=e.target.closest('[data-page]');const goBtn=e.target.closest('[data-go]');if(nav&&typeof go==='function')go(nav.dataset.page);else if(goBtn&&typeof go==='function')go(goBtn.dataset.go)});
 const storeKey='electrolearner-progress-v1';
 let data={xp:0,done:[],fusion:[],streak:0,lastDay:null,capstones:{}};
-try{data={...data,...JSON.parse(localStorage.getItem(storeKey)||'{}')}}catch(e){}\ndata.done=Array.isArray(data.done)?data.done:[];data.fusion=Array.isArray(data.fusion)?data.fusion:[];data.capstones=data.capstones&&typeof data.capstones==='object'?data.capstones:{};data.streak=Number.isFinite(data.streak)?data.streak:0;
+try{data={...data,...JSON.parse(localStorage.getItem(storeKey)||'{}')}}catch(e){}
+data.done=Array.isArray(data.done)?data.done:[];data.fusion=Array.isArray(data.fusion)?data.fusion:[];data.capstones=data.capstones&&typeof data.capstones==='object'?data.capstones:{};data.streak=Number.isFinite(data.streak)?data.streak:0;
 const save=()=>{localStorage.setItem(storeKey,JSON.stringify(data));renderStats()};
 function today(){return new Date().toISOString().slice(0,10)}
 function award(id,points){if(!data.done.includes(id)){data.done.push(id);data.xp+=points;let d=today();if(data.lastDay!==d){data.streak=data.lastDay===new Date(Date.now()-86400000).toISOString().slice(0,10)?data.streak+1:1;data.lastDay=d}save()}}
