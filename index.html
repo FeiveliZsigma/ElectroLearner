@@ -23,7 +23,7 @@
  <div class="sidebar-bottom"><div class="freebox">✦ Free learning, no premium locks.<br>Learn at your own pace.</div></div>
 </aside>
 <main class="main">
- <header class="topbar"><strong id="top-title">Home</strong><div class="topstats"><span class="stat">⚡ <b id="xp">0</b> XP</span><span>🔥 <b id="streak">0</b> day streak</span></div></header>
+ <header class="topbar"><div style="display:flex;align-items:center;gap:12px"><strong id="top-title">Home</strong><span class="pill" title="ElectroLearner release">v1.1</span></div><div class="topstats"><span class="stat">⚡ <b id="xp">0</b> XP</span><span>🔥 <b id="streak">0</b> day streak</span></div></header>
  <div class="content">
  <section class="page active" id="page-home">
   <div class="hero"><div><div class="eyebrow">YOUR ENGINEERING JOURNEY</div><h2>Learn something. Build something.</h2><p>Master C++, ESP32 electronics and Fusion 360 through bite-sized lessons, hands-on practice and real projects.</p><div style="margin-top:17px"><button class="btn primary" data-go="learn">Continue learning →</button></div></div><div class="hero-mark">⚡</div></div>
@@ -108,7 +108,7 @@ void loop() {
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const storeKey='electrolearner-progress-v1';
-let data={xp:0,done:[],fusion:[],streak:0,lastDay:null,capstones:{}};selectedProjects={};
+let data={xp:0,done:[],fusion:[],streak:0,lastDay:null,capstones:{}};
 try{data={...data,...JSON.parse(localStorage.getItem(storeKey)||'{}')}}catch(e){}
 const save=()=>{localStorage.setItem(storeKey,JSON.stringify(data));renderStats()};
 function today(){return new Date().toISOString().slice(0,10)}
@@ -116,8 +116,8 @@ function award(id,points){if(!data.done.includes(id)){data.done.push(id);data.xp
 function renderStats(){
  $('#xp').textContent=data.xp;$('#home-xp').textContent=data.xp;$('#profile-xp').textContent=data.xp;$('#home-done').textContent=data.done.length;$('#profile-done').textContent=data.done.length;$('#streak').textContent=data.streak;$('#home-streak').textContent=data.streak;$('#profile-streak').textContent=data.streak+' days';
  const c=data.done.filter(x=>x.startsWith('c')).length,e=data.done.filter(x=>x.startsWith('e')).length,f=data.fusion.length;
- [['#cpp-progress',c/courses.cpp.length],['#cpp-progress2',c/5],['#esp-progress',e/courses.esp.length],['#esp-progress2',e/4],['#fusion-progress',f/fusionSteps.length],['#fusion-step-progress',f/8],['#p-cpp',c/5],['#p-esp',e/4],['#p-fusion',f/8]].forEach(([s,v])=>{let el=$(s);if(el)el.style.width=(v*100)+'%'});
- $('#achievements').textContent=(data.done.length>=1?'🏅 First lesson completed · ':'')+(data.xp>=100?'⚡ 100 XP earned · ':'')+(data.fusion.length===8?'📐 Fusion first model tutorial complete':'Keep learning to unlock achievements.')||'Complete your first lesson to unlock your first achievement.';
+ [['#cpp-progress',c/courses.cpp.length],['#cpp-progress2',c/courses.cpp.length],['#esp-progress',e/courses.esp.length],['#esp-progress2',e/courses.esp.length],['#fusion-progress',f/fusionSteps.length],['#fusion-step-progress',f/8],['#p-cpp',c/courses.cpp.length],['#p-esp',e/courses.esp.length],['#p-fusion',f/fusionSteps.length]].forEach(([s,v])=>{let el=$(s);if(el)el.style.width=(v*100)+'%'});
+ $('#achievements').textContent=(data.done.length>=1?'🏅 First lesson completed · ':'')+(data.xp>=100?'⚡ 100 XP earned · ':'')+(data.fusion.length===fusionSteps.length?'📐 Fusion guided course complete':'Keep learning to unlock achievements.')||'Complete your first lesson to unlock your first achievement.';
 }
 const pages={home:'Home',learn:'Learn',code:'Code playground',fusion:'Fusion 360',lab:'Electronics lab',profile:'My progress'};
 function go(p){$$('.page').forEach(x=>x.classList.toggle('active',x.id==='page-'+p));$$('.nav').forEach(x=>x.classList.toggle('active',x.dataset.page===p));$('#top-title').textContent=pages[p]||p;window.scrollTo(0,0)}
