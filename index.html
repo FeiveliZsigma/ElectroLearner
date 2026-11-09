@@ -121,9 +121,9 @@ void loop() {
 const $=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)];
 document.addEventListener('click',e=>{const nav=e.target.closest('[data-page]');const goBtn=e.target.closest('[data-go]');if(nav&&typeof go==='function')go(nav.dataset.page);else if(goBtn&&typeof go==='function')go(goBtn.dataset.go)});
 const storeKey='electrolearner-progress-v1';
-let data={xp:0,done:[],fusion:[],streak:0,lastDay:null,capstones:{}};
+let data={xp:0,done:[],fusion:[],streak:0,lastDay:null,capstones:{},quizScores:{}};
 try{data={...data,...JSON.parse(localStorage.getItem(storeKey)||'{}')}}catch(e){}
-data.done=Array.isArray(data.done)?data.done:[];data.fusion=Array.isArray(data.fusion)?data.fusion:[];data.capstones=data.capstones&&typeof data.capstones==='object'?data.capstones:{};data.streak=Number.isFinite(data.streak)?data.streak:0;
+data.done=Array.isArray(data.done)?data.done:[];data.fusion=Array.isArray(data.fusion)?data.fusion:[];data.capstones=data.capstones&&typeof data.capstones==='object'?data.capstones:{};data.quizScores=data.quizScores&&typeof data.quizScores==='object'?data.quizScores:{};data.streak=Number.isFinite(data.streak)?data.streak:0;
 const save=()=>{localStorage.setItem(storeKey,JSON.stringify(data));renderStats()};
 function today(){return new Date().toISOString().slice(0,10)}
 function award(id,points){if(!data.done.includes(id)){data.done.push(id);data.xp+=points;let d=today();if(data.lastDay!==d){data.streak=data.lastDay===new Date(Date.now()-86400000).toISOString().slice(0,10)?data.streak+1:1;data.lastDay=d}save()}}
@@ -175,6 +175,24 @@ Object.assign(courses, {
  ])
 });
 
+
+Object.assign(courses,{
+cpp:courses.cpp.concat([
+['c14','User input with cin','Read values entered by a person.','Use cin with the extraction operator >> to read a value from the console. For full lines of text, C++ also provides getline.','Which object reads console input?',['cout','cin','endl'],1],
+['c15','Nested loops','Use a loop inside another loop.','The inner loop completes its repetitions for each pass of the outer loop. Nested loops are useful for grids, tables and repeated combinations.','When does the inner loop run?',['Once for each outer pass','Only at program shutdown','Before the outer loop starts'],0],
+['c16','Vectors','Store collections that can grow.','std::vector is a standard library container that can change size. Include <vector>, add items with push_back(), and check the number of items with size().','Which method adds an item to a vector?',['push_back()','size()','clear_screen()'],0],
+['c17','Structs and enums','Create useful custom data types.','A struct groups related fields under one type. An enum gives names to a set of possible states and can make program logic easier to read.','What is a struct useful for?',['Grouping related data','Repeating a loop','Uploading firmware'],0],
+['c18','Organize a C++ project','Separate declarations and implementation.','Larger C++ projects often use header files for declarations and source files for definitions. Include guards help prevent a header from being included more than once.','What is a common purpose of a header file?',['Holding declarations','Storing battery power','Replacing the compiler'],0]
+]),
+esp:courses.esp.concat([
+['e15','Servo motor concepts','Understand controlled movement with a small servo.','A hobby servo uses a control pulse signal. Check the servo voltage and current requirements; some servos need a separate suitable low-voltage supply. Do not overload the ESP32 board regulator.','What should you check before powering a servo?',['Its voltage and current requirements','Only its colour','The USB cable brand'],0],
+['e16','Interrupts and responsive inputs','React to an event without constant polling.','An interrupt can notify your program that an event occurred, such as a pin changing state. Keep interrupt handlers short and avoid doing lengthy work inside them.','What is a good interrupt-handler habit?',['Keep it short','Add long delays','Print large reports continuously'],0],
+['e17','Timers and non-blocking code','Schedule actions without pausing everything.','millis() reports elapsed milliseconds and can schedule work without long delay() calls. This lets the program keep checking inputs and updating other tasks.','Why use millis() instead of a long delay()?',['Other tasks can continue','It raises board voltage','It removes setup()'],0],
+['e18','ESP32 local web server','Display device information in a browser.','An ESP32 with Wi-Fi support can host a small local web server. A browser on the same network can request a page or endpoint. Keep network credentials private.','What can a local web server provide?',['A browser view of device information','Power to a motor through Wi-Fi','A replacement for the microcontroller'],0],
+['e19','Organize a larger Arduino project','Keep code understandable as features grow.','Separate sensor reading, display updates and application logic into functions and files. Keep pin assignments together and use clear names for variables and functions.','Why split a larger project into functions?',['To make it easier to understand and maintain','To increase wireless range','To avoid testing'],0]
+])
+});
+
 function renderCourse(key,target){let arr=courses[key];$(target).innerHTML='';arr.forEach((l,i)=>{let done=data.done.includes(l[0]),locked=i>0&&!data.done.includes(arr[i-1][0]);let b=document.createElement('button');b.className='lesson '+(done?'done ':'')+(locked?'locked':'');b.disabled=locked;b.innerHTML='<span class="num">'+(done?'✓':i+1)+'</span><span class="desc"><strong>'+l[1]+'</strong><small>'+l[2]+'</small></span><span class="check">'+(done?'✓':locked?'🔒':'→')+'</span>';b.onclick=()=>openLesson(key,i);$(target).append(b)})}
 function openLesson(key,i){let l=courses[key][i];let opts=l[5].map((x,j)=>'<button class="option" data-i="'+j+'">'+x+'</button>').join('');let overlay=document.createElement('div');overlay.id='lesson-overlay';overlay.style.cssText='position:fixed;inset:0;background:#080d17ed;z-index:20;overflow:auto;padding:22px';overlay.innerHTML='<div class="lesson-view" style="margin:30px auto"><button class="btn" id="close-lesson">← Course</button><div class="lesson-block"><div class="eyebrow">'+(key==='cpp'?'C++ FOUNDATIONS':'ESP32 & ARDUINO')+' · LESSON '+(i+1)+'</div><h2>'+l[1]+'</h2><p>'+l[2]+'</p><h3>Learn the concept</h3><p>'+l[3]+'</p>'+(key==='cpp'&&i===1?'<pre class="code">#include &lt;iostream&gt;\nusing namespace std;\n\nint main() {\n  cout &lt;&lt; "Hello, world!" &lt;&lt; endl;\n  return 0;\n}</pre>':key==='esp'&&i===3?'<pre class="code">const int LED_PIN = 2;\nvoid setup() {\n  pinMode(LED_PIN, OUTPUT);\n}\nvoid loop() {\n  digitalWrite(LED_PIN, HIGH);\n  delay(1000);\n  digitalWrite(LED_PIN, LOW);\n  delay(1000);\n}</pre>':'')+'<div class="callout">Take your time. Read the explanation, then answer the check-your-understanding question.</div><h3>Quick check</h3><p>'+l[4]+'</p><div id="lesson-options">'+opts+'</div><p id="lesson-feedback" class="muted small" aria-live="polite">Choose an answer to check your understanding.</p><button class="btn primary" id="complete-lesson" disabled>Complete lesson · +20 XP</button></div></div>';
 document.body.append(overlay);$('#close-lesson').onclick=()=>overlay.remove();let right=false;all('#lesson-options .option').forEach(b=>b.onclick=()=>{all('#lesson-options .option').forEach(x=>x.classList.remove('selected','correct','wrong'));let ok=+b.dataset.i===l[6];b.classList.add('selected',ok?'correct':'wrong');right=ok;$('#lesson-feedback').textContent=ok?'Correct! You got it.':'Not quite. Review the explanation and try again.';$('#lesson-feedback').style.color=ok?'var(--accent)':'var(--danger)';$('#complete-lesson').disabled=!ok||data.done.includes(l[0])});$('#complete-lesson').onclick=()=>{if(!right)return;award(l[0],20);overlay.remove();renderCourse('cpp','#cpp-lessons');renderCourse('esp','#esp-lessons')}}
@@ -212,6 +230,14 @@ fusionSteps.push(
  ['Prepare a model for printing','A printable part should be a valid solid, have sensible dimensions and be checked in a slicer. Overhangs and thin walls may need design changes.','Inspect the body, check units, export a mesh and open it in your slicer. Review scale, orientation and support needs before printing.','Your exported model opens at the intended size in the slicer.'],
  ['Fusion skills review','Combine sketching, dimensions, solid features, organization and export into one small part.','Make a simple bracket or enclosure: sketch, dimension, extrude, add a fillet, organize the body and export a mesh.','You can complete the workflow without copying every click from the earlier tutorial.']
 );
+
+fusionSteps.push(
+['Use parameters','Parameters let you name dimensions and reuse them.','Open Change Parameters. Create a user parameter named wallThickness with a value such as 2 mm, then use that name in a sketch dimension.','You can explain how changing a parameter updates dependent geometry.'],
+['Shells and ribs','Shell hollows a solid; ribs add support features.','On a practice body, try Shell by selecting an opening face. On a separate body, inspect the Rib tool and its preview before confirming.','You can identify when a shell or rib is useful in a design.'],
+['Create a technical drawing','Drawings communicate dimensions and views.','Create a drawing from a component. Add a base view, a projected view and a few meaningful dimensions.','Your drawing communicates the part shape and key dimensions.'],
+['Final modelling challenge','Combine the core tools into one functional design.','Design a small sensor mounting plate with a constrained sketch, exact dimensions, extruded thickness, mounting holes, a fillet and a named component. Export a mesh and inspect it in your slicer.','You can complete and explain the sketch-to-export workflow.']
+);
+
 $('#fusion-tabs').innerHTML=fusionSteps.map((s,i)=>'<button class="tab" data-step="'+i+'">'+(i+1)+'. '+s[0].split(' ')[0]+'</button>').join('');
 function selectCourseTab(key){all('[data-course-tab]').forEach(b=>{let active=b.dataset.courseTab===key;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});['cpp','esp','fusion'].forEach(k=>{let panel=$('#course-panel-'+k);if(panel)panel.hidden=k!==key})}
 all('[data-course-tab]').forEach(b=>b.addEventListener('click',()=>selectCourseTab(b.dataset.courseTab)));
@@ -226,7 +252,7 @@ all('#fusion-tabs .tab').forEach(b=>b.onclick=()=>{fstep=+b.dataset.step;renderF
 $('#led-toggle').onclick=()=>{let on=$('#led-state').textContent==='LED OFF';$('#led-state').textContent=on?'LED ON':'LED OFF';$('#virtual-led').style.filter=on?'none':'grayscale(1)';$('#virtual-led').style.textShadow=on?'0 0 22px #ffdb66':'none';$('#led-toggle').textContent=on?'Turn LED OFF':'Turn LED ON'};
 all('#lab-quiz .option').forEach(b=>b.onclick=()=>{let ok=b.dataset.correct==='true';all('#lab-quiz .option').forEach(x=>x.classList.remove('correct','wrong'));b.classList.add(ok?'correct':'wrong');$('#lab-feedback').textContent=ok?'Correct! OUTPUT configures the GPIO pin to send a signal.':'Try again. OUTPUT means the pin sends a signal to another part of the circuit.';$('#lab-feedback').style.color=ok?'var(--accent)':'var(--danger)'});
 $('#copy-blink').onclick=async()=>{let code=$('.card pre').textContent;try{await navigator.clipboard.writeText(code);$('#copy-blink').textContent='Copied!'}catch(e){$('#copy-blink').textContent='Select code to copy'}};
-$('#reset-progress').onclick=()=>{if(confirm('Reset all ElectroLearner progress on this browser?')){data={xp:0,done:[],fusion:[],streak:0,lastDay:null,capstones:{}};selectedProjects={};save();renderCourse('cpp','#cpp-lessons');renderCourse('esp','#esp-lessons');fstep=0;renderFusion()}};
+$('#reset-progress').onclick=()=>{if(confirm('Reset all ElectroLearner progress on this browser?')){data={xp:0,done:[],fusion:[],streak:0,lastDay:null,capstones:{},quizScores:{}};selectedProjects={};save();renderCourse('cpp','#cpp-lessons');renderCourse('esp','#esp-lessons');fstep=0;renderFusion()}};
 
 const projectChoices = {
  cpp:[
@@ -254,6 +280,55 @@ function renderProjects(track,target){
 }
 
 renderProjects('cpp','#cpp-project-options');renderProjects('esp','#esp-project-options');renderProjects('fusion','#fusion-project-options');
+
+const quizBank={
+cpp:[
+['Which statement reads a value entered by the user?',['cout >> value;','cin >> value;','print(value);'],1,'cin uses >> to read input.'],
+['What is the first index in a C++ array?',['0','1','-1'],0,'C++ arrays start at index 0.'],
+['Which container can grow as items are added?',['std::vector','int','bool'],0,'std::vector can change size.'],
+['What does return do in a function?',['Repeats a loop','Sends a result to the caller','Creates a class'],1,'return sends a value back to the caller.'],
+['What is a struct useful for?',['Grouping related fields','Setting GPIO voltage','Compiling code'],0,'A struct groups related data.']
+],
+esp:[
+['What should you do before changing breadboard wiring?',['Disconnect USB power','Touch both power rails','Rewire while powered'],0,'Disconnect power before changing connections.'],
+['What does an ADC do?',['Converts analogue input to a digital reading','Creates Wi-Fi','Stores source code'],0,'An ADC converts an analogue voltage to a digital value.'],
+['Which pair is used by I2C?',['SDA and SCL','TX and RX only','VIN and GND'],0,'I2C uses SDA for data and SCL for clock.'],
+['Why check a sensor data sheet?',['Confirm pinout and voltage limits','Find its colour','Skip testing'],0,'The data sheet documents electrical requirements.'],
+['Why can millis() be useful?',['Schedule work without a long blocking delay','Raise supply voltage','Replace all functions'],0,'millis() lets other work continue while time passes.']
+],
+fusion:[
+['What does a sketch dimension control?',['The exact size of geometry','Toolbar colour','File name'],0,'Dimensions define exact lengths and diameters.'],
+['What does Extrude do?',['Adds depth to a closed profile','Deletes the Browser','Changes camera only'],0,'Extrude turns a 2D profile into a 3D feature.'],
+['Why use components?',['Organize separate parts','Increase screen brightness','Export a password'],0,'Components organize parts and support assemblies.'],
+['What is a fillet?',['A rounded edge or transition','A straight bevel','A sketch plane'],0,'A fillet rounds selected edges.'],
+['What should you inspect after exporting a mesh?',['Scale, orientation and printability','Only the file icon','Wi-Fi password'],0,'Check the model scale and geometry in your slicer.']
+]};
+function renderQuiz(track){
+ const host=$('#quiz-'+track);if(!host)return;
+ const best=data.quizScores&&data.quizScores[track];
+ host.innerHTML='<p class="small muted">'+(best===undefined?'Not attempted yet':'Best score: '+best+'/5')+'</p><button class="btn primary" id="quiz-start-'+track+'">Start assessment →</button><div id="quiz-stage-'+track+'"></div>';
+ $('#quiz-start-'+track).onclick=()=>runQuiz(track);
+}
+function runQuiz(track){
+ const qs=quizBank[track],host=$('#quiz-stage-'+track);let n=0,answers=[];
+ function show(){
+  if(n===qs.length){
+   const score=answers.filter((a,i)=>a===qs[i][2]).length;
+   data.quizScores=data.quizScores||{};data.quizScores[track]=Math.max(data.quizScores[track]||0,score);
+   if(score>=4&&!data.done.includes('quiz-'+track)){data.done.push('quiz-'+track);data.xp+=50}
+   save();renderQuiz(track);
+   host.innerHTML='<div class="callout"><strong>Assessment result: '+score+'/5</strong><p>'+(score>=4?'Passed! You earned 50 XP on your first pass.':'Review the lessons and try again. You need 4/5 to pass.')+'</p></div><button class="btn" id="quiz-retry-'+track+'">Try again</button>';
+   $('#quiz-retry-'+track).onclick=()=>runQuiz(track);return;
+  }
+  const q=qs[n];host.innerHTML='<p class="small muted">Question '+(n+1)+' of 5</p><div class="progress"><span style="width:'+(n*20)+'%"></span></div><h4>'+q[0]+'</h4>'+q[1].map((a,i)=>'<button class="option" data-ans="'+i+'">'+a+'</button>').join('')+'<p class="small muted" id="quiz-feedback-'+track+'">Choose an answer.</p><button class="btn primary" id="quiz-next-'+track+'" disabled>'+(n===4?'Finish assessment':'Next question →')+'</button>';
+  let selected=-1;
+  host.querySelectorAll('[data-ans]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.ans);host.querySelectorAll('[data-ans]').forEach(x=>x.classList.remove('correct','wrong','selected'));const ok=selected===q[2];b.classList.add(ok?'correct':'wrong','selected');$('#quiz-feedback-'+track).textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#quiz-next-'+track).disabled=false});
+  $('#quiz-next-'+track).onclick=()=>{if(selected<0)return;answers.push(selected);n++;show()};
+ }
+ show();
+}
+['cpp','esp','fusion'].forEach(renderQuiz);
+
 renderFusion();renderStats();
 </script>
 </body></html>
