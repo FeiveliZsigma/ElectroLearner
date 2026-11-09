@@ -106,10 +106,10 @@ void loop() {
 </main>
 </div>
 <script>
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const $=s=>document.querySelector(s),$=s=>[...document.querySelectorAll(s)];\ndocument.addEventListener('click',e=>{const nav=e.target.closest('[data-page]');const goBtn=e.target.closest('[data-go]');if(nav&&typeof go==='function')go(nav.dataset.page);else if(goBtn&&typeof go==='function')go(goBtn.dataset.go)});
 const storeKey='electrolearner-progress-v1';
 let data={xp:0,done:[],fusion:[],streak:0,lastDay:null,capstones:{}};
-try{data={...data,...JSON.parse(localStorage.getItem(storeKey)||'{}')}}catch(e){}
+try{data={...data,...JSON.parse(localStorage.getItem(storeKey)||'{}')}}catch(e){}\ndata.done=Array.isArray(data.done)?data.done:[];data.fusion=Array.isArray(data.fusion)?data.fusion:[];data.capstones=data.capstones&&typeof data.capstones==='object'?data.capstones:{};data.streak=Number.isFinite(data.streak)?data.streak:0;
 const save=()=>{localStorage.setItem(storeKey,JSON.stringify(data));renderStats()};
 function today(){return new Date().toISOString().slice(0,10)}
 function award(id,points){if(!data.done.includes(id)){data.done.push(id);data.xp+=points;let d=today();if(data.lastDay!==d){data.streak=data.lastDay===new Date(Date.now()-86400000).toISOString().slice(0,10)?data.streak+1:1;data.lastDay=d}save()}}
@@ -206,7 +206,7 @@ $$('#fusion-tabs .tab').forEach(b=>b.onclick=()=>{fstep=+b.dataset.step;renderFu
 $('#led-toggle').onclick=()=>{let on=$('#led-state').textContent==='LED OFF';$('#led-state').textContent=on?'LED ON':'LED OFF';$('#virtual-led').style.filter=on?'none':'grayscale(1)';$('#virtual-led').style.textShadow=on?'0 0 22px #ffdb66':'none';$('#led-toggle').textContent=on?'Turn LED OFF':'Turn LED ON'};
 $$('#lab-quiz .option').forEach(b=>b.onclick=()=>{let ok=b.dataset.correct==='true';$$('#lab-quiz .option').forEach(x=>x.classList.remove('correct','wrong'));b.classList.add(ok?'correct':'wrong');$('#lab-feedback').textContent=ok?'Correct! OUTPUT configures the GPIO pin to send a signal.':'Try again. OUTPUT means the pin sends a signal to another part of the circuit.';$('#lab-feedback').style.color=ok?'var(--accent)':'var(--danger)'});
 $('#copy-blink').onclick=async()=>{let code=$('.card pre').textContent;try{await navigator.clipboard.writeText(code);$('#copy-blink').textContent='Copied!'}catch(e){$('#copy-blink').textContent='Select code to copy'}};
-$('#reset-progress').onclick=()=>{if(confirm('Reset all ElectroLearner progress on this browser?')){data={xp:0,done:[],fusion:[],streak:0,lastDay:null};save();renderCourse('cpp','#cpp-lessons');renderCourse('esp','#esp-lessons');fstep=0;renderFusion()}};
+$('#reset-progress').onclick=()=>{if(confirm('Reset all ElectroLearner progress on this browser?')){data={xp:0,done:[],fusion:[],streak:0,lastDay:null,capstones:{}};selectedProjects={};save();renderCourse('cpp','#cpp-lessons');renderCourse('esp','#esp-lessons');fstep=0;renderFusion()}};
 
 const projectChoices = {
  cpp:[
