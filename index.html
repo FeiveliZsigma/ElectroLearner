@@ -44,7 +44,7 @@
  <div class="sidebar-bottom"><div class="freebox">✦ Free learning, no premium locks.<br>Learn at your own pace.</div></div>
 </aside>
 <main class="main">
- <header class="topbar"><div style="display:flex;align-items:center;gap:12px"><strong id="top-title">Home</strong><span class="pill" title="ElectroLearner release">v2.1</span></div><div class="topstats"><span class="stat">⚡ <b id="xp">0</b> XP</span><span>🔥 <b id="streak">0</b> day streak</span></div></header>
+ <header class="topbar"><div style="display:flex;align-items:center;gap:12px"><strong id="top-title">Home</strong><span class="pill" title="ElectroLearner release">v2.2</span></div><div class="topstats"><span class="stat">⚡ <b id="xp">0</b> XP</span><span>🔥 <b id="streak">0</b> day streak</span></div></header>
  <div class="content">
  <section class="page active" id="page-home">
   <div class="hero"><div><div class="eyebrow">YOUR ENGINEERING JOURNEY</div><h2>Learn something. Build something.</h2><p>Master C++, ESP32 electronics and Fusion 360 through bite-sized lessons, hands-on practice and real projects.</p><div style="margin-top:17px"><button class="btn primary" data-go="learn">Continue learning →</button></div></div><div class="hero-mark">⚡</div></div>
@@ -371,11 +371,25 @@ function projectArt(p){
  return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
 }
 function renderProjects(track,target,filter='all'){
- const host=$(target);if(!host)return;
- const projects=projectChoices[track].filter(p=>filter==='all'||(p.difficulty||(p.level==='Beginner'?'easy':p.level==='Intermediate'?'medium':'hard'))===filter);
- host.innerHTML=projects.map(p=>{const info=difficultyInfo(p);const count=(data.projectChallenges&&data.projectChallenges[p.id]&&data.projectChallenges[p.id].checks||[]).length;return '<article class="project-card"><img class="project-art" src="'+projectArt(p)+'" alt="Illustration for '+p.name+'"><div class="project-card-body"><div class="project-card-top"><strong>'+p.name+'</strong><span class="difficulty '+info.key+'">'+info.label+'</span></div><p class="small muted">'+p.desc+'</p><div class="small muted">Suggested timeline: '+info.days+' days · '+count+'/'+p.tasks.length+' checkpoints</div><button class="btn primary" style="margin-top:10px" data-project-open="'+p.id+'">'+(data.projectChallenges&&data.projectChallenges[p.id]?'Continue challenge →':'Start challenge →')+'</button></div></article>'}).join('');
- if(!projects.length)host.innerHTML='<div class="card muted">No projects in this difficulty yet.</div>';
- host.querySelectorAll('[data-project-open]').forEach(b=>b.onclick=()=>openProject(b.dataset.projectOpen,track));
+ const host=$(target);
+ if(!host){console.error('ElectroLearner: project container not found:',target);return}
+ try{
+  const source=(projectChoices&&projectChoices[track])||(track==='personal'?personalProjects:[]);
+  if(!Array.isArray(source))throw new Error('Project list is not available');
+  const projects=source.filter(p=>filter==='all'||(p.difficulty||(p.level==='Beginner'?'easy':p.level==='Intermediate'?'medium':'hard'))===filter);
+  host.innerHTML=projects.map(p=>{
+   const info=difficultyInfo(p);
+   const state=data.projectChallenges&&data.projectChallenges[p.id];
+   const count=state&&Array.isArray(state.checks)?state.checks.length:0;
+   const art=projectArt(p);
+   return '<article class="project-card"><img class="project-art" src="'+art+'" alt="Illustration for '+p.name+'"><div class="project-card-body"><div class="project-card-top"><strong>'+p.name+'</strong><span class="difficulty '+info.key+'">'+info.label+'</span></div><p class="small muted">'+p.desc+'</p><div class="small muted">Suggested timeline: '+info.days+' days · '+count+'/'+p.tasks.length+' checkpoints</div><button class="btn primary" style="margin-top:10px" data-project-open="'+p.id+'">'+(state?'Continue challenge →':'Start challenge →')+'</button></div></article>';
+  }).join('');
+  if(!projects.length)host.innerHTML='<div class="card muted">No projects match this filter.</div>';
+  host.querySelectorAll('[data-project-open]').forEach(b=>b.addEventListener('click',()=>openProject(b.dataset.projectOpen,track)));
+ }catch(error){
+  console.error('ElectroLearner project library failed:',error);
+  host.innerHTML='<div class="card"><h3>Project library could not load</h3><p class="small muted">The app hit an error while loading projects. Refresh the page and try again. If this continues, send the browser console error to support.</p></div>';
+ }
 }
 
 
