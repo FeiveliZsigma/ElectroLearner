@@ -37,7 +37,7 @@
  <div class="sidebar-bottom"><div class="freebox">✦ Free learning, no premium locks.<br>Learn at your own pace.</div></div>
 </aside>
 <main class="main">
- <header class="topbar"><div style="display:flex;align-items:center;gap:12px"><strong id="top-title">Home</strong><span class="pill" title="ElectroLearner release">v1.5</span></div><div class="topstats"><span class="stat">⚡ <b id="xp">0</b> XP</span><span>🔥 <b id="streak">0</b> day streak</span></div></header>
+ <header class="topbar"><div style="display:flex;align-items:center;gap:12px"><strong id="top-title">Home</strong><span class="pill" title="ElectroLearner release">v1.6</span></div><div class="topstats"><span class="stat">⚡ <b id="xp">0</b> XP</span><span>🔥 <b id="streak">0</b> day streak</span></div></header>
  <div class="content">
  <section class="page active" id="page-home">
   <div class="hero"><div><div class="eyebrow">YOUR ENGINEERING JOURNEY</div><h2>Learn something. Build something.</h2><p>Master C++, ESP32 electronics and Fusion 360 through bite-sized lessons, hands-on practice and real projects.</p><div style="margin-top:17px"><button class="btn primary" data-go="learn">Continue learning →</button></div></div><div class="hero-mark">⚡</div></div>
@@ -60,6 +60,7 @@
    <button class="tab active" type="button" role="tab" aria-selected="true" data-course-tab="cpp">💻 C++</button>
    <button class="tab" type="button" role="tab" aria-selected="false" data-course-tab="esp">🔌 ESP32</button>
    <button class="tab" type="button" role="tab" aria-selected="false" data-course-tab="fusion">📐 Fusion 360</button>
+   <button class="tab" type="button" role="tab" aria-selected="false" data-course-tab="projects">🚀 Projects</button>
   </div>
   <div id="course-panel-cpp" class="course-panel" role="tabpanel">
    <div class="card"><div class="course"><div class="course-icon">💻</div><div><span class="pill">PROGRAMMING</span><h3>C++ Foundations</h3><div class="small muted">Learn the language used to program your ESP32.</div></div></div><div class="progress"><span id="cpp-progress2"></span></div><div class="lesson-list" id="cpp-lessons"></div></div>
@@ -73,7 +74,10 @@
    <div class="card"><div class="course"><div class="course-icon">📐</div><div><span class="pill">3D DESIGN</span><h3>Fusion 360 Beginner</h3><div class="small muted">Learn sketching, dimensions, modelling, components and 3D-print preparation.</div></div></div><div class="progress"><span id="fusion-progress-learn"></span></div><div class="small muted" id="fusion-learn-count">0 of 20 steps completed</div><div class="lesson-list" id="fusion-lessons"></div><button class="btn primary" type="button" data-go="fusion" style="margin-top:12px">Open guided Fusion tutorial →</button></div>
    <div class="card" style="margin-top:15px"><div class="eyebrow">FINAL PROJECTS</div><h3>Test your Fusion 360 skills</h3><p class="muted small">Choose from an ESP32 enclosure, adjustable mounting bracket or mini mechanical assembly in the guided Fusion area.</p><button class="btn" type="button" data-go="fusion">View Fusion final projects →</button></div>
   </div>
-  <div class="card" style="margin-top:16px"><div class="eyebrow">PERSONAL ENGINEERING BUILDS</div><h3>Your real-world project ideas</h3><p class="muted small">Projects inspired by the builds you've discussed, including TJ. These use the same deadline, help-request and extension rules.</p><div id="personal-project-options"></div></div>
+  <div id="course-panel-projects" class="course-panel" role="tabpanel" hidden>
+   <div class="eyebrow">PERSONAL ENGINEERING BUILDS</div><h1 class="h1">Your project challenges</h1><p class="sub">Choose a TJ build to start. Each project has a difficulty level, deadline, checklist and help-request system.</p>
+   <div class="card"><h3>TJ engineering projects</h3><p class="muted small">Pick a project below to open its challenge page.</p><div id="personal-project-options"></div></div>
+  </div>
  </section>
  <section class="page" id="page-project">
   <div class="project-detail">
@@ -260,7 +264,7 @@ fusionSteps.push(
 );
 
 $('#fusion-tabs').innerHTML=fusionSteps.map((s,i)=>'<button class="tab" data-step="'+i+'">'+(i+1)+'. '+s[0].split(' ')[0]+'</button>').join('');
-function selectCourseTab(key){all('[data-course-tab]').forEach(b=>{let active=b.dataset.courseTab===key;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});['cpp','esp','fusion'].forEach(k=>{let panel=$('#course-panel-'+k);if(panel)panel.hidden=k!==key})}
+function selectCourseTab(key){all('[data-course-tab]').forEach(b=>{let active=b.dataset.courseTab===key;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});['cpp','esp','fusion','projects'].forEach(k=>{let panel=$('#course-panel-'+k);if(panel)panel.hidden=k!==key})}
 all('[data-course-tab]').forEach(b=>b.addEventListener('click',()=>selectCourseTab(b.dataset.courseTab)));
 function renderFusionCourseList(){let host=$('#fusion-lessons');if(!host)return;host.innerHTML=fusionSteps.map((step,i)=>'<button class="lesson" type="button" data-fusion-open="'+i+'"><span class="num">'+(data.fusion.includes(i)?'✓':i+1)+'</span><span class="desc"><strong>'+step[0]+'</strong><small>'+step[3]+'</small></span><span class="check">→</span></button>').join('');$('#fusion-progress-learn').style.width=(data.fusion.length/fusionSteps.length*100)+'%';$('#fusion-learn-count').textContent=data.fusion.length+' of '+fusionSteps.length+' steps completed'}
 renderFusionCourseList();
