@@ -44,7 +44,7 @@
  <div class="sidebar-bottom"><div class="freebox">✦ Free learning, no premium locks.<br>Learn at your own pace.</div></div>
 </aside>
 <main class="main">
- <header class="topbar"><div style="display:flex;align-items:center;gap:12px"><strong id="top-title">Home</strong><span class="pill" title="ElectroLearner release">v1.9</span></div><div class="topstats"><span class="stat">⚡ <b id="xp">0</b> XP</span><span>🔥 <b id="streak">0</b> day streak</span></div></header>
+ <header class="topbar"><div style="display:flex;align-items:center;gap:12px"><strong id="top-title">Home</strong><span class="pill" title="ElectroLearner release">v2.1</span></div><div class="topstats"><span class="stat">⚡ <b id="xp">0</b> XP</span><span>🔥 <b id="streak">0</b> day streak</span></div></header>
  <div class="content">
  <section class="page active" id="page-home">
   <div class="hero"><div><div class="eyebrow">YOUR ENGINEERING JOURNEY</div><h2>Learn something. Build something.</h2><p>Master C++, ESP32 electronics and Fusion 360 through bite-sized lessons, hands-on practice and real projects.</p><div style="margin-top:17px"><button class="btn primary" data-go="learn">Continue learning →</button></div></div><div class="hero-mark">⚡</div></div>
@@ -178,7 +178,7 @@ function renderStats(){
  $('#achievements').textContent=(data.done.length>=1?'🏅 First lesson completed · ':'')+(data.xp>=100?'⚡ 100 XP earned · ':'')+(data.fusion.length===fusionSteps.length?'📐 Fusion guided course complete':'Keep learning to unlock achievements.')||'Complete your first lesson to unlock your first achievement.';
 }
 const pages={home:'Home',learn:'Learn',projects:'Projects',code:'Code playground',fusion:'Fusion 360',lab:'Electronics lab',profile:'My progress',project:'Project challenge'};
-function go(p){all('.page').forEach(x=>x.classList.toggle('active',x.id==='page-'+p));all('.nav').forEach(x=>x.classList.toggle('active',x.dataset.page===p));$('#top-title').textContent=pages[p]||p;window.scrollTo(0,0)}
+function go(p){all('.page').forEach(x=>x.classList.toggle('active',x.id==='page-'+p));all('.nav').forEach(x=>x.classList.toggle('active',x.dataset.page===p));$('#top-title').textContent=pages[p]||p;if(p==='projects'){renderProjects('personal','#all-project-options',activeProjectFilter||'all')}window.scrollTo(0,0)}
 all('[data-page]').forEach(b=>b.onclick=()=>go(b.dataset.page));all('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
 const courses={
  cpp:[['c0','What is C++?','Understand what a programming language does.', 'C++ is a language used to write instructions for computers and microcontrollers. Arduino sketches use C++ with helpful libraries and functions.','Which best describes a program?',['A set of instructions a computer follows','A physical circuit board','A type of battery'],0],
@@ -382,6 +382,7 @@ function renderProjects(track,target,filter='all'){
 renderProjects('cpp','#cpp-project-options');renderProjects('esp','#esp-project-options');renderProjects('fusion','#fusion-project-options');renderProjects('personal','#personal-project-options');renderProjects('personal','#all-project-options');
 let activeProjectFilter='all';
 all('[data-project-filter]').forEach(b=>b.onclick=()=>{activeProjectFilter=b.dataset.projectFilter;all('[data-project-filter]').forEach(x=>x.classList.toggle('active',x===b));renderProjects('personal','#all-project-options',activeProjectFilter)});
+const projectsNav=$('[data-page="projects"]');if(projectsNav)projectsNav.addEventListener('click',()=>{selectCourseTab('projects');renderProjects('personal','#all-project-options',activeProjectFilter||'all')});
 
 const quizBank={
 cpp:[
